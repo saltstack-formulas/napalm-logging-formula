@@ -1,0 +1,34 @@
+{%- set config = salt.net.config().out.running %}
+{%- for line in config.split("\n") %}
+  {%- if line.startswith("logging") %}
+no {{ line }}
+  {%- endif %}
+{%- endfor %}
+
+{%- set version = grains.version.replace('.', '') %}
+
+{%- for selector in logging.get('console', {}).get('selectors', {}).get('selector', {}).values() %}
+logging console {{ selector.config.severity }}
+{%- endfor %}
+{%- for selector in logging.get('buffered', {}).get('selectors', {}).get('selector', {}).values() %}
+logging buffered {{ selector.config.severity }}
+{%- endfor %}
+{%- if logging.get('config', {}).get('facility') %}
+logging facility {{ logging.config.facility }}
+{%- endif %}
+{%- if logging.get('config', {}).get('source_interface') %}
+logging source-interface {{ logging.config.source_interface }}
+{%- endif %}
+{%- if logging.get('config', {}).get('trap') %}
+logging trap {{ logging.config.trap }}
+{%- endif %}
+{%- if logging.get('config', {}).get('format', {}).get('hostnameprefix') %}
+logging hostnameprefix {{ logging.config.format.hostnameprefix }}
+{%- endif %}
+{%- for server_opts in logging.get('remote_servers', {}).get('remote_server', {}).values() %}
+  {%- if server_opts.get('config', {}).get('remote_port') and version|int > 531 %}
+logging {{ server_opts.config.host }} port {{ server_opts.config.remote_port }}
+  {%- else %}
+logging {{ server_opts.config.host }}
+  {%- endif %}
+{%- endfor %}
