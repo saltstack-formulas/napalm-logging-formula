@@ -1,0 +1,41 @@
+system {
+  replace:
+  syslog {
+  {%- for file_opts in logging.get('files', {}).get('file', {}).values() %} 
+    file {{ file_opts.config.file }} {
+      {%- if file_opts.config.get('match') %}
+      match {{ file_opts.config.match }};
+      {%- endif %}
+      {%- for selector in file_opts.get('selectors', {}).get('selector', {}).values() %}
+      {{ selector.config.facility }} {{ selector.config.severity }};
+      {%- endfor %}
+    }
+  {%- endfor %}
+  {%- for server_opts in logging.get('remote_servers', {}).get('remote_server', {}).values() %} 
+    host {{ server_opts.config.host }} {
+      {%- if server_opts.config.get('remote_port') %}
+      port {{ server_opts.config.remote_port }};
+      {%- endif %}
+      {%- if server_opts.config.get('source_address') %}
+      source-address {{ server_opts.config.source_address }};
+      {%- endif %}
+      {%- if server_opts.config.get('match') %}
+      match {{ server_opts.config.match }};
+      {%- endif %}
+      {%- for selector in server_opts.get('selectors', {}).get('selector', {}).values() %}
+      {{ selector.config.facility }} {{ selector.config.severity }};
+      {%- endfor %}
+    }
+  {%- endfor %}
+  {%- for user_opts in logging.get('users', {}).get('user', {}).values() %} 
+    user {{ user_opts.config.user }} {
+      {%- if user_opts.config.get('match') %}
+      match {{ user_opts.config.match }};
+      {%- endif %}
+      {%- for selector in user_opts.get('selectors', {}).get('selector', {}).values() %}
+      {{ selector.config.facility }} {{ selector.config.severity }};
+      {%- endfor %}
+    }
+  {%- endfor %}
+  }
+}

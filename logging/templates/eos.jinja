@@ -1,0 +1,26 @@
+{%- set config = salt.net.config().out.running %}
+{%- for line in config.split("\n") %}
+  {%- if line.startswith("logging") %}
+no {{ line }}
+  {%- endif %}
+{%- endfor %}
+
+{%- for selector in logging.get('console', {}).get('selectors', {}).get('selector', {}).values() %}
+logging console {{ selector.config.severity }}
+{%- endfor %}
+{%- if logging.get('config', {}).get('buffered') %}
+logging buffered {{ logging.config.buffered }}
+{%- endif %}
+{%- if logging.get('config', {}).get('source_interface') %}
+logging source-interface {{ logging.config.source_interface }}
+{%- endif %}
+{%- if logging.get('config', {}).get('format', {}).get('hostname') %}
+logging format hostname {{ logging.config.format.hostname }}
+{%- endif %}
+{%- for server_opts in logging.get('remote_servers', {}).get('remote_server', {}).values() %}
+  {%- if server_opts.get('config', {}).get('remote_port') %}
+logging host {{ server_opts.config.host }} {{ server_opts.config.remote_port }}
+  {%- else %}
+logging host {{ server_opts.config.host }}
+  {%- endif %}
+{%- endfor %}

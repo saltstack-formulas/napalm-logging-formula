@@ -1,0 +1,64 @@
+openconfig-system-logging:
+  system:
+    logging:
+      config:
+        buffered: 1000
+        format:
+          hostname: fqdn
+          hostnameprefix: router
+        source_interface: Loopback0
+      console:
+        selectors:
+          selector:
+            'any emergencies':
+              config:
+                facility: any
+                severity: emergencies
+      files:
+        file:
+          messages:
+            config:
+              file: messages
+            selectors:
+              selector:
+                'any notice':
+                  config:
+                    facility: any
+                    severity: notice
+                'authorization info':
+                  config:
+                    facility: authorization
+                    severity: info
+          interactive-commands:
+            config:
+              file: interactive-commands
+            selectors:
+              selector:
+                'interactive-commands any':
+                  config:
+                    facility: interactive-commands
+                    severity: any
+      remote_servers:
+        remote_server:
+          primary_node:
+            config:
+              host: 1.2.3.4
+              remote_port: 9514
+              match: '"!(.*PING_PROBE_FAILED.*|.*PING_TEST.*)"'
+            selectors:
+              selector:
+                'any any':
+                  config:
+                    facility: any
+                    severity: any
+      users:
+        user:
+          '*':
+            config:
+              user: '*'
+            selectors:
+              selector:
+                'any emergency':
+                  config:
+                    facility: any
+                    severity: emergency
